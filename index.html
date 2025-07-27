@@ -5,45 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Food Order System</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f8f9fa; }
+    body { font-family: Arial, sans-serif; background: #f8f9fa; margin: 0; padding: 0; }
     h1 { text-align: center; padding: 15px; background: #ff6b00; color: white; margin: 0; }
     .container { max-width: 500px; margin: 20px auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
     label { display: block; margin-top: 10px; font-weight: bold; }
-    input, select {
-      width: 100%;
-      padding: 12px;
-      margin-top: 6px;
-      font-size: 16px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      box-sizing: border-box;
-      appearance: none;
-    }
-    button {
-      width: 100%;
-      padding: 12px;
-      margin-top: 10px;
-      font-size: 16px;
-      font-weight: bold;
-      border: none;
-      border-radius: 8px;
-      background: #ff6b00;
-      color: white;
-      cursor: pointer;
-      transition: 0.3s;
-    }
+    input, select { width: 100%; padding: 12px; margin-top: 6px; font-size: 16px; border: 1px solid #ccc; border-radius: 8px; }
+    button { width: 100%; padding: 12px; margin-top: 10px; font-size: 16px; font-weight: bold; border: none; border-radius: 8px; background: #ff6b00; color: white; cursor: pointer; }
     button:hover { background: #e65a00; }
     .summary { display: none; margin-top: 15px; padding: 15px; background: #fff3cd; border: 1px solid #ffeeba; border-radius: 10px; }
     .toggle-btn { background: #007bff; }
     .toggle-btn:hover { background: #0056b3; }
     #loginBox, #adminPanel { display: none; }
     table { width: 100%; margin-top: 12px; border-collapse: collapse; }
-    th, td { border: 1px solid #ddd; padding: 8px; font-size: 14px; }
+    th, td { border: 1px solid #ddd; padding: 8px; font-size: 14px; text-align: center; }
     th { background: #007bff; color: white; }
-    .control-btns button { width: auto; padding: 10px 15px; margin: 5px; border-radius: 6px; }
-    .danger { background: #dc3545; }
-    .danger:hover { background: #b52a37; }
-    .error { color: red; font-size: 14px; display: none; }
+    .cart-table { margin-top: 10px; }
   </style>
 </head>
 <body>
@@ -51,40 +27,46 @@
 
   <div class="container" id="orderPanel">
     <h2>Place Your Order</h2>
-    <form id="orderForm">
-      <label>Name</label>
-      <input type="text" id="name" required />
-      <p id="nameError" class="error"></p>
 
-      <label>Contact</label>
-      <input type="text" id="contact" required />
-      <p id="contactError" class="error"></p>
+    <label>Name</label>
+    <input type="text" id="name" />
 
-      <label>Food Item</label>
-      <select id="item">
-        <option value="Fish Butter Fry" data-price="120">Fish Butter Fry - ₹120</option>
-        <option value="Fish Fry" data-price="100">Fish Fry - ₹100</option>
-        <option value="Fish Finger" data-price="130">Fish Finger - ₹130</option>
-        <option value="Golden Prawns" data-price="150">Golden Prawns - ₹150</option>
-        <option value="Fish Kabiraji" data-price="140">Fish Kabiraji - ₹140</option>
-        <option value="Chicken Keema Cutlet" data-price="90">Chicken Keema Cutlet - ₹90</option>
-        <option value="Chicken Drumsticks" data-price="110">Chicken Drumsticks - ₹110</option>
-        <option value="Tea" data-price="20">Tea - ₹20</option>
-        <option value="Sandwich Chicken" data-price="80">Sandwich Chicken - ₹80</option>
-        <option value="Sandwich Paneer" data-price="75">Sandwich Paneer - ₹75</option>
-        <option value="Sandwich Cheese Corn" data-price="85">Sandwich Cheese Corn - ₹85</option>
-        <option value="Pan Fried Momo" data-price="70">Pan Fried Momo - ₹70</option>
-        <option value="Kabiraji Momo" data-price="90">Kabiraji Momo - ₹90</option>
-        <option value="Afghani Momo" data-price="95">Afghani Momo - ₹95</option>
-        <option value="Fried Momo" data-price="65">Fried Momo - ₹65</option>
-        <option value="Steam Momo" data-price="60">Steam Momo - ₹60</option>
-      </select>
+    <label>Contact</label>
+    <input type="text" id="contact" />
 
-      <label>Quantity</label>
-      <input type="number" id="quantity" min="1" value="1" required />
+    <label>Food Item</label>
+    <select id="item">
+      <option value="Fish Butter Fry" data-price="120">Fish Butter Fry - ₹120</option>
+      <option value="Fish Fry" data-price="100">Fish Fry - ₹100</option>
+      <option value="Fish Finger" data-price="130">Fish Finger - ₹130</option>
+      <option value="Golden Prawns" data-price="150">Golden Prawns - ₹150</option>
+      <option value="Fish Kabiraji" data-price="140">Fish Kabiraji - ₹140</option>
+      <option value="Chicken Keema Cutlet" data-price="90">Chicken Keema Cutlet - ₹90</option>
+      <option value="Chicken Drumsticks" data-price="110">Chicken Drumsticks - ₹110</option>
+      <option value="Tea" data-price="20">Tea - ₹20</option>
+      <option value="Sandwich Chicken" data-price="80">Sandwich Chicken - ₹80</option>
+      <option value="Sandwich Paneer" data-price="75">Sandwich Paneer - ₹75</option>
+      <option value="Sandwich Cheese Corn" data-price="85">Sandwich Cheese Corn - ₹85</option>
+      <option value="Pan Fried Momo" data-price="70">Pan Fried Momo - ₹70</option>
+      <option value="Kabiraji Momo" data-price="90">Kabiraji Momo - ₹90</option>
+      <option value="Afghani Momo" data-price="95">Afghani Momo - ₹95</option>
+      <option value="Fried Momo" data-price="65">Fried Momo - ₹65</option>
+      <option value="Steam Momo" data-price="60">Steam Momo - ₹60</option>
+    </select>
 
-      <button type="submit">Place Order</button>
-    </form>
+    <label>Quantity</label>
+    <input type="number" id="quantity" value="1" min="1" />
+
+    <button onclick="addToCart()">Add to Cart</button>
+
+    <table class="cart-table" id="cartTable">
+      <thead>
+        <tr><th>Item</th><th>Qty</th><th>Price ₹</th><th>Remove</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <button onclick="placeOrder()">Place Order</button>
 
     <div class="summary" id="summaryBox">
       <h3>Order Summary</h3>
@@ -99,24 +81,19 @@
     <h2>Admin Login</h2>
     <input type="password" id="adminPass" placeholder="Enter Password" />
     <button onclick="checkLogin()">Login</button>
-    <p id="errorMsg" class="error"></p>
     <button class="toggle-btn" onclick="hideLogin()">Back</button>
   </div>
 
   <div class="container" id="adminPanel">
     <h2>Admin Panel</h2>
     <input type="text" id="searchBox" placeholder="Search Orders" />
-    <div class="control-btns">
-      <button onclick="exportCSV()">Export CSV</button>
-      <button onclick="clearOrders()" class="danger">Clear All</button>
-      <button onclick="hideAdmin()" class="toggle-btn">Back</button>
-    </div>
+    <button onclick="exportCSV()">Export CSV</button>
+    <button onclick="clearOrders()" style="background:#dc3545;">Clear All</button>
+    <button onclick="hideAdmin()" class="toggle-btn">Back</button>
 
     <table id="adminTable">
       <thead>
-        <tr>
-          <th>ID</th><th>Date</th><th>Name</th><th>Item</th><th>Qty</th><th>Total ₹</th>
-        </tr>
+        <tr><th>ID</th><th>Date</th><th>Name</th><th>Items</th><th>Total ₹</th></tr>
       </thead>
       <tbody></tbody>
     </table>
@@ -127,6 +104,35 @@
 
   <script>
     const { jsPDF } = window.jspdf;
+    let cart = [];
+
+    function addToCart() {
+      const itemSelect = document.getElementById("item");
+      const item = itemSelect.value;
+      const price = parseInt(itemSelect.options[itemSelect.selectedIndex].dataset.price);
+      const qty = parseInt(document.getElementById("quantity").value);
+
+      cart.push({ item, qty, price });
+      updateCart();
+    }
+
+    function removeFromCart(index) {
+      cart.splice(index, 1);
+      updateCart();
+    }
+
+    function updateCart() {
+      const tbody = document.querySelector("#cartTable tbody");
+      tbody.innerHTML = "";
+      cart.forEach((c, i) => {
+        tbody.innerHTML += `<tr>
+          <td>${c.item}</td>
+          <td>${c.qty}</td>
+          <td>${c.price * c.qty}</td>
+          <td><button style="width:auto;padding:5px;" onclick="removeFromCart(${i})">X</button></td>
+        </tr>`;
+      });
+    }
 
     function getOrderId() {
       let lastId = localStorage.getItem("lastOrderId") || 0;
@@ -141,107 +147,93 @@
       localStorage.setItem("orders", JSON.stringify(orders));
     }
 
-    document.getElementById("orderForm").addEventListener("submit", function (e) {
-      e.preventDefault();
+    function placeOrder() {
       const name = document.getElementById("name").value.trim();
       const contact = document.getElementById("contact").value.trim();
 
       if (!/^[A-Za-z\s]+$/.test(name)) return alert("Enter valid name");
       if (!/^[0-9]{10}$/.test(contact)) return alert("Enter valid 10-digit mobile");
+      if (cart.length === 0) return alert("Add at least one item");
 
-      const itemSelect = document.getElementById("item");
-      const item = itemSelect.value;
-      const price = parseInt(itemSelect.options[itemSelect.selectedIndex].dataset.price);
-      const qty = parseInt(document.getElementById("quantity").value);
-      const total = price * qty;
       const orderId = getOrderId();
       const date = new Date().toLocaleString();
+      let total = cart.reduce((sum, c) => sum + c.price * c.qty, 0);
 
-      const order = { orderId, date, name, contact, item, quantity: qty, total };
+      const order = { orderId, date, name, contact, items: cart, total };
       saveOrder(order);
 
-      document.getElementById("summaryText").innerText =
-        `Order ID: #${orderId}\nDate: ${date}\nName: ${name}\nItem: ${item}\nQty: ${qty}\nTotal: ₹${total}`;
+      let summary = `Order ID: #${orderId}\nDate: ${date}\nName: ${name}\n\nItems:\n`;
+      cart.forEach(c => summary += `- ${c.item} x${c.qty} = ₹${c.price * c.qty}\n`);
+      summary += `\nTotal: ₹${total}`;
+
+      document.getElementById("summaryText").innerText = summary;
       document.getElementById("summaryBox").style.display = "block";
-    });
 
-    document.getElementById("downloadBtn").addEventListener("click", function () {
-      const orderText = document.getElementById("summaryText").innerText;
-      const orderId = orderText.match(/Order ID:\s?#(\d+)/)?.[1] || "NA";
-      const customerName = orderText.match(/Name:\s?(.+)/)?.[1] || "Customer";
+      document.getElementById("downloadBtn").onclick = () => generatePDF(orderId, name, summary);
+      cart = [];
+      updateCart();
+    }
 
-      // ✅ Generate QR in canvas (better for mobile)
+    function generatePDF(orderId, name, summary) {
       const qrDiv = document.createElement("div");
-      new QRCode(qrDiv, { text: `Order #${orderId} - ${customerName}`, width: 80, height: 80 });
+      new QRCode(qrDiv, { text: `Order #${orderId} - ${name}`, width: 60, height: 60 });
       const canvas = qrDiv.querySelector("canvas");
 
       setTimeout(() => {
         const qrData = canvas.toDataURL("image/png");
-        const doc = new jsPDF();
+        const doc = new jsPDF({ orientation: "p", unit: "mm", format: [80, 200] });
 
-        doc.setFontSize(14);
-        doc.text("Customer Copy", 20, 20);
-        doc.addImage(qrData, "PNG", 150, 15, 40, 40);
         doc.setFontSize(12);
-        doc.text(orderText, 20, 65);
+        doc.text("Customer Copy", 10, 10);
+        doc.addImage(qrData, "PNG", 55, 5, 20, 20);
+        doc.setFontSize(10);
+        doc.text(summary, 10, 30);
 
-        doc.line(10, 140, 200, 140);
+        doc.line(5, 90, 75, 90);
 
-        doc.setFontSize(14);
-        doc.text("Vendor Copy", 20, 150);
-        doc.addImage(qrData, "PNG", 150, 145, 40, 40);
         doc.setFontSize(12);
-        doc.text(orderText, 20, 195);
+        doc.text("Vendor Copy", 10, 100);
+        doc.addImage(qrData, "PNG", 55, 95, 20, 20);
+        doc.setFontSize(10);
+        doc.text(summary, 10, 120);
 
         doc.save("order_summary.pdf");
-      }, 500); // Wait for QR code
-    });
-
-    // 🔹 Admin Functions
-    function showLogin() { orderPanel.style.display = "none"; loginBox.style.display = "block"; }
-    function hideLogin() { orderPanel.style.display = "block"; loginBox.style.display = "none"; }
-    function checkLogin() {
-      if (document.getElementById("adminPass").value === "admin123") {
-        loginBox.style.display = "none"; adminPanel.style.display = "block"; loadOrders();
-      } else alert("Wrong password!");
+      }, 400);
     }
-    function hideAdmin() { adminPanel.style.display = "none"; orderPanel.style.display = "block"; }
 
-    function loadOrders(filter = "") {
-      const tbody = document.querySelector("#adminTable tbody");
-      tbody.innerHTML = "";
-      let orders = JSON.parse(localStorage.getItem("orders") || "[]");
-      if (filter) orders = orders.filter(o =>
-        o.name.toLowerCase().includes(filter) || o.item.toLowerCase().includes(filter)
-      );
-      if (!orders.length) return (tbody.innerHTML = "<tr><td colspan='6'>No Orders</td></tr>");
-      orders.forEach(o => {
-        tbody.innerHTML += `<tr><td>${o.orderId}</td><td>${o.date}</td><td>${o.name}</td><td>${o.item}</td><td>${o.quantity}</td><td>${o.total}</td></tr>`;
+    function showLogin(){ orderPanel.style.display="none"; loginBox.style.display="block";}
+    function hideLogin(){ orderPanel.style.display="block"; loginBox.style.display="none";}
+    function checkLogin(){ if(document.getElementById("adminPass").value==="admin123"){ loginBox.style.display="none"; adminPanel.style.display="block"; loadOrders(); } else alert("Wrong password!");}
+    function hideAdmin(){ adminPanel.style.display="none"; orderPanel.style.display="block";}
+
+    function loadOrders(filter=""){
+      const tbody=document.querySelector("#adminTable tbody");
+      tbody.innerHTML="";
+      let orders=JSON.parse(localStorage.getItem("orders")||"[]");
+      if(filter) orders=orders.filter(o=>o.name.toLowerCase().includes(filter)||o.items.some(i=>i.item.toLowerCase().includes(filter)));
+      if(!orders.length) return tbody.innerHTML="<tr><td colspan='5'>No Orders</td></tr>";
+      orders.forEach(o=>{
+        const itemsList=o.items.map(i=>`${i.item} x${i.qty}`).join(", ");
+        tbody.innerHTML+=`<tr><td>${o.orderId}</td><td>${o.date}</td><td>${o.name}</td><td>${itemsList}</td><td>${o.total}</td></tr>`;
       });
     }
 
-    document.getElementById("searchBox").addEventListener("input", e => loadOrders(e.target.value.toLowerCase()));
+    document.getElementById("searchBox").addEventListener("input",e=>loadOrders(e.target.value.toLowerCase()));
 
-    function clearOrders() {
-      if (confirm("Delete all orders?")) {
-        localStorage.removeItem("orders");
-        localStorage.removeItem("lastOrderId");
-        loadOrders();
-      }
-    }
+    function clearOrders(){ if(confirm("Delete all orders?")){ localStorage.removeItem("orders"); localStorage.removeItem("lastOrderId"); loadOrders(); } }
 
-    function exportCSV() {
-      let orders = JSON.parse(localStorage.getItem("orders") || "[]");
-      if (!orders.length) return alert("No orders to export!");
-      let csv = "Order ID,Date,Name,Contact,Item,Qty,Total\n";
-      orders.forEach(o => {
-        csv += `${o.orderId},"${o.date}",${o.name},${o.contact},${o.item},${o.quantity},${o.total}\n`;
+    function exportCSV(){
+      let orders=JSON.parse(localStorage.getItem("orders")||"[]");
+      if(!orders.length) return alert("No orders to export!");
+      let csv="Order ID,Date,Name,Contact,Items,Total\n";
+      orders.forEach(o=>{
+        const itemsList=o.items.map(i=>`${i.item} x${i.qty}`).join(" | ");
+        csv+=`${o.orderId},"${o.date}",${o.name},${o.contact},"${itemsList}",${o.total}\n`;
       });
-      const blob = new Blob([csv], { type: "text/csv" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url; a.download = "orders.csv"; a.click();
-      URL.revokeObjectURL(url);
+      const blob=new Blob([csv],{type:"text/csv"});
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement("a");
+      a.href=url; a.download="orders.csv"; a.click(); URL.revokeObjectURL(url);
     }
   </script>
 </body>
