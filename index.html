@@ -17,7 +17,6 @@
       border-radius: 8px;
       border: 1px solid #ccc;
       box-sizing: border-box;
-      background: white;
       appearance: none;
     }
     button {
@@ -50,7 +49,6 @@
 <body>
   <h1>Food Order System</h1>
 
-  <!-- Order Form -->
   <div class="container" id="orderPanel">
     <h2>Place Your Order</h2>
     <form id="orderForm">
@@ -97,7 +95,6 @@
     <button class="toggle-btn" onclick="showLogin()">Admin Panel</button>
   </div>
 
-  <!-- Login -->
   <div class="container" id="loginBox">
     <h2>Admin Login</h2>
     <input type="password" id="adminPass" placeholder="Enter Password" />
@@ -106,7 +103,6 @@
     <button class="toggle-btn" onclick="hideLogin()">Back</button>
   </div>
 
-  <!-- Admin Panel -->
   <div class="container" id="adminPanel">
     <h2>Admin Panel</h2>
     <input type="text" id="searchBox" placeholder="Search Orders" />
@@ -130,7 +126,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
   <script>
-    const ADMIN_PASSWORD = "admin123";
+    const { jsPDF } = window.jspdf;
 
     function getOrderId() {
       let lastId = localStorage.getItem("lastOrderId") || 0;
@@ -149,6 +145,7 @@
       e.preventDefault();
       const name = document.getElementById("name").value.trim();
       const contact = document.getElementById("contact").value.trim();
+
       if (!/^[A-Za-z\s]+$/.test(name)) return alert("Enter valid name");
       if (!/^[0-9]{10}$/.test(contact)) return alert("Enter valid 10-digit mobile");
 
@@ -169,21 +166,22 @@
     });
 
     document.getElementById("downloadBtn").addEventListener("click", function () {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
       const orderText = document.getElementById("summaryText").innerText;
       const orderId = orderText.match(/Order ID:\s?#(\d+)/)?.[1] || "NA";
       const customerName = orderText.match(/Name:\s?(.+)/)?.[1] || "Customer";
 
+      // ✅ Generate QR in canvas (better for mobile)
       const qrDiv = document.createElement("div");
       new QRCode(qrDiv, { text: `Order #${orderId} - ${customerName}`, width: 80, height: 80 });
+      const canvas = qrDiv.querySelector("canvas");
 
       setTimeout(() => {
-        const qrImg = qrDiv.querySelector("img").src;
+        const qrData = canvas.toDataURL("image/png");
+        const doc = new jsPDF();
 
         doc.setFontSize(14);
         doc.text("Customer Copy", 20, 20);
-        doc.addImage(qrImg, "PNG", 150, 15, 40, 40);
+        doc.addImage(qrData, "PNG", 150, 15, 40, 40);
         doc.setFontSize(12);
         doc.text(orderText, 20, 65);
 
@@ -191,20 +189,21 @@
 
         doc.setFontSize(14);
         doc.text("Vendor Copy", 20, 150);
-        doc.addImage(qrImg, "PNG", 150, 145, 40, 40);
+        doc.addImage(qrData, "PNG", 150, 145, 40, 40);
         doc.setFontSize(12);
         doc.text(orderText, 20, 195);
 
         doc.save("order_summary.pdf");
-      }, 600);
+      }, 500); // Wait for QR code
     });
 
+    // 🔹 Admin Functions
     function showLogin() { orderPanel.style.display = "none"; loginBox.style.display = "block"; }
     function hideLogin() { orderPanel.style.display = "block"; loginBox.style.display = "none"; }
     function checkLogin() {
-      if (document.getElementById("adminPass").value === ADMIN_PASSWORD) {
+      if (document.getElementById("adminPass").value === "admin123") {
         loginBox.style.display = "none"; adminPanel.style.display = "block"; loadOrders();
-      } else document.getElementById("errorMsg").textContent = "Wrong password!";
+      } else alert("Wrong password!");
     }
     function hideAdmin() { adminPanel.style.display = "none"; orderPanel.style.display = "block"; }
 
@@ -215,15 +214,13 @@
       if (filter) orders = orders.filter(o =>
         o.name.toLowerCase().includes(filter) || o.item.toLowerCase().includes(filter)
       );
-      if (orders.length === 0) return (tbody.innerHTML = "<tr><td colspan='6'>No Orders Found</td></tr>");
+      if (!orders.length) return (tbody.innerHTML = "<tr><td colspan='6'>No Orders</td></tr>");
       orders.forEach(o => {
         tbody.innerHTML += `<tr><td>${o.orderId}</td><td>${o.date}</td><td>${o.name}</td><td>${o.item}</td><td>${o.quantity}</td><td>${o.total}</td></tr>`;
       });
     }
 
-    document.getElementById("searchBox").addEventListener("input", function () {
-      loadOrders(this.value.toLowerCase());
-    });
+    document.getElementById("searchBox").addEventListener("input", e => loadOrders(e.target.value.toLowerCase()));
 
     function clearOrders() {
       if (confirm("Delete all orders?")) {
@@ -235,7 +232,7 @@
 
     function exportCSV() {
       let orders = JSON.parse(localStorage.getItem("orders") || "[]");
-      if (orders.length === 0) return alert("No orders to export!");
+      if (!orders.length) return alert("No orders to export!");
       let csv = "Order ID,Date,Name,Contact,Item,Qty,Total\n";
       orders.forEach(o => {
         csv += `${o.orderId},"${o.date}",${o.name},${o.contact},${o.item},${o.quantity},${o.total}\n`;
