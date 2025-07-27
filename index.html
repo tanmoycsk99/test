@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Food Order System</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f8f9fa; }
+    h1 { text-align: center; padding: 15px; background: #ff6b00; color: white; margin: 0; }
+    .container { max-width: 500px; margin: 20px auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    label { display: block; margin-top: 10px; font-weight: bold; }
+    input, select {
+      width: 100%;
+      padding: 12px;
+      margin-top: 6px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+      background: white;
+      appearance: none;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      background: #ff6b00;
+      color: white;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover { background: #e65a00; }
+    .summary { display: none; margin-top: 15px; padding: 15px; background: #fff3cd; border: 1px solid #ffeeba; border-radius: 10px; }
+    .toggle-btn { background: #007bff; }
+    .toggle-btn:hover { background: #0056b3; }
+    #loginBox, #adminPanel { display: none; }
+    table { width: 100%; margin-top: 12px; border-collapse: collapse; }
+    th, td { border: 1px solid #ddd; padding: 8px; font-size: 14px; }
+    th { background: #007bff; color: white; }
+    .control-btns button { width: auto; padding: 10px 15px; margin: 5px; border-radius: 6px; }
+    .danger { background: #dc3545; }
+    .danger:hover { background: #b52a37; }
+    .error { color: red; font-size: 14px; display: none; }
+  </style>
+</head>
+<body>
+  <h1>Food Order System</h1>
+
+  <!-- Order Form -->
+  <div class="container" id="orderPanel">
+    <h2>Place Your Order</h2>
+    <form id="orderForm">
+      <label>Name</label>
+      <input type="text" id="name" required />
+      <p id="nameError" class="error"></p>
+
+      <label>Contact</label>
+      <input type="text" id="contact" required />
+      <p id="contactError" class="error"></p>
+
+      <label>Food Item</label>
+      <select id="item">
+        <option value="Fish Butter Fry" data-price="120">Fish Butter Fry - ₹120</option>
+        <option value="Fish Fry" data-price="100">Fish Fry - ₹100</option>
+        <option value="Fish Finger" data-price="130">Fish Finger - ₹130</option>
+        <option value="Golden Prawns" data-price="150">Golden Prawns - ₹150</option>
+        <option value="Fish Kabiraji" data-price="140">Fish Kabiraji - ₹140</option>
+        <option value="Chicken Keema Cutlet" data-price="90">Chicken Keema Cutlet - ₹90</option>
+        <option value="Chicken Drumsticks" data-price="110">Chicken Drumsticks - ₹110</option>
+        <option value="Tea" data-price="20">Tea - ₹20</option>
+        <option value="Sandwich Chicken" data-price="80">Sandwich Chicken - ₹80</option>
+        <option value="Sandwich Paneer" data-price="75">Sandwich Paneer - ₹75</option>
+        <option value="Sandwich Cheese Corn" data-price="85">Sandwich Cheese Corn - ₹85</option>
+        <option value="Pan Fried Momo" data-price="70">Pan Fried Momo - ₹70</option>
+        <option value="Kabiraji Momo" data-price="90">Kabiraji Momo - ₹90</option>
+        <option value="Afghani Momo" data-price="95">Afghani Momo - ₹95</option>
+        <option value="Fried Momo" data-price="65">Fried Momo - ₹65</option>
+        <option value="Steam Momo" data-price="60">Steam Momo - ₹60</option>
+      </select>
+
+      <label>Quantity</label>
+      <input type="number" id="quantity" min="1" value="1" required />
+
+      <button type="submit">Place Order</button>
+    </form>
+
+    <div class="summary" id="summaryBox">
+      <h3>Order Summary</h3>
+      <p id="summaryText"></p>
+      <button id="downloadBtn">Download PDF</button>
+    </div>
+
+    <button class="toggle-btn" onclick="showLogin()">Admin Panel</button>
+  </div>
+
+  <!-- Login -->
+  <div class="container" id="loginBox">
+    <h2>Admin Login</h2>
+    <input type="password" id="adminPass" placeholder="Enter Password" />
+    <button onclick="checkLogin()">Login</button>
+    <p id="errorMsg" class="error"></p>
+    <button class="toggle-btn" onclick="hideLogin()">Back</button>
+  </div>
+
+  <!-- Admin Panel -->
+  <div class="container" id="adminPanel">
+    <h2>Admin Panel</h2>
+    <input type="text" id="searchBox" placeholder="Search Orders" />
+    <div class="control-btns">
+      <button onclick="exportCSV()">Export CSV</button>
+      <button onclick="clearOrders()" class="danger">Clear All</button>
+      <button onclick="hideAdmin()" class="toggle-btn">Back</button>
+    </div>
+
+    <table id="adminTable">
+      <thead>
+        <tr>
+          <th>ID</th><th>Date</th><th>Name</th><th>Item</th><th>Qty</th><th>Total ₹</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <script>
+    const ADMIN_PASSWORD = "admin123";
+
+    function getOrderId() {
+      let lastId = localStorage.getItem("lastOrderId") || 0;
+      lastId = parseInt(lastId) + 1;
+      localStorage.setItem("lastOrderId", lastId);
+      return lastId;
+    }
+
+    function saveOrder(order) {
+      let orders = JSON.parse(localStorage.getItem("orders") || "[]");
+      orders.push(order);
+      localStorage.setItem("orders", JSON.stringify(orders));
+    }
+
+    document.getElementById("orderForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const name = document.getElementById("name").value.trim();
+      const contact = document.getElementById("contact").value.trim();
+      if (!/^[A-Za-z\s]+$/.test(name)) return alert("Enter valid name");
+      if (!/^[0-9]{10}$/.test(contact)) return alert("Enter valid 10-digit mobile");
+
+      const itemSelect = document.getElementById("item");
+      const item = itemSelect.value;
+      const price = parseInt(itemSelect.options[itemSelect.selectedIndex].dataset.price);
+      const qty = parseInt(document.getElementById("quantity").value);
+      const total = price * qty;
+      const orderId = getOrderId();
+      const date = new Date().toLocaleString();
+
+      const order = { orderId, date, name, contact, item, quantity: qty, total };
+      saveOrder(order);
+
+      document.getElementById("summaryText").innerText =
+        `Order ID: #${orderId}\nDate: ${date}\nName: ${name}\nItem: ${item}\nQty: ${qty}\nTotal: ₹${total}`;
+      document.getElementById("summaryBox").style.display = "block";
+    });
+
+    document.getElementById("downloadBtn").addEventListener("click", function () {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      const orderText = document.getElementById("summaryText").innerText;
+      const orderId = orderText.match(/Order ID:\s?#(\d+)/)?.[1] || "NA";
+      const customerName = orderText.match(/Name:\s?(.+)/)?.[1] || "Customer";
+
+      const qrDiv = document.createElement("div");
+      new QRCode(qrDiv, { text: `Order #${orderId} - ${customerName}`, width: 80, height: 80 });
+
+      setTimeout(() => {
+        const qrImg = qrDiv.querySelector("img").src;
+
+        doc.setFontSize(14);
+        doc.text("Customer Copy", 20, 20);
+        doc.addImage(qrImg, "PNG", 150, 15, 40, 40);
+        doc.setFontSize(12);
+        doc.text(orderText, 20, 65);
+
+        doc.line(10, 140, 200, 140);
+
+        doc.setFontSize(14);
+        doc.text("Vendor Copy", 20, 150);
+        doc.addImage(qrImg, "PNG", 150, 145, 40, 40);
+        doc.setFontSize(12);
+        doc.text(orderText, 20, 195);
+
+        doc.save("order_summary.pdf");
+      }, 600);
+    });
+
+    function showLogin() { orderPanel.style.display = "none"; loginBox.style.display = "block"; }
+    function hideLogin() { orderPanel.style.display = "block"; loginBox.style.display = "none"; }
+    function checkLogin() {
+      if (document.getElementById("adminPass").value === ADMIN_PASSWORD) {
+        loginBox.style.display = "none"; adminPanel.style.display = "block"; loadOrders();
+      } else document.getElementById("errorMsg").textContent = "Wrong password!";
+    }
+    function hideAdmin() { adminPanel.style.display = "none"; orderPanel.style.display = "block"; }
+
+    function loadOrders(filter = "") {
+      const tbody = document.querySelector("#adminTable tbody");
+      tbody.innerHTML = "";
+      let orders = JSON.parse(localStorage.getItem("orders") || "[]");
+      if (filter) orders = orders.filter(o =>
+        o.name.toLowerCase().includes(filter) || o.item.toLowerCase().includes(filter)
+      );
+      if (orders.length === 0) return (tbody.innerHTML = "<tr><td colspan='6'>No Orders Found</td></tr>");
+      orders.forEach(o => {
+        tbody.innerHTML += `<tr><td>${o.orderId}</td><td>${o.date}</td><td>${o.name}</td><td>${o.item}</td><td>${o.quantity}</td><td>${o.total}</td></tr>`;
+      });
+    }
+
+    document.getElementById("searchBox").addEventListener("input", function () {
+      loadOrders(this.value.toLowerCase());
+    });
+
+    function clearOrders() {
+      if (confirm("Delete all orders?")) {
+        localStorage.removeItem("orders");
+        localStorage.removeItem("lastOrderId");
+        loadOrders();
+      }
+    }
+
+    function exportCSV() {
+      let orders = JSON.parse(localStorage.getItem("orders") || "[]");
+      if (orders.length === 0) return alert("No orders to export!");
+      let csv = "Order ID,Date,Name,Contact,Item,Qty,Total\n";
+      orders.forEach(o => {
+        csv += `${o.orderId},"${o.date}",${o.name},${o.contact},${o.item},${o.quantity},${o.total}\n`;
+      });
+      const blob = new Blob([csv], { type: "text/csv" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = "orders.csv"; a.click();
+      URL.revokeObjectURL(url);
+    }
+  </script>
+</body>
+</html>
