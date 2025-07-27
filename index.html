@@ -1,1 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Food Order System</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f8f9fa; margin: 0; padding: 0; }
+    h1 { text-align: center; padding: 15px; background: #ff6b00; color: white; margin: 0; }
+    .container { max-width: 500px; margin: 20px auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    .form-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .form-row label { width: 40%; font-weight: bold; }
+    .form-row input, .form-row select, .form-row button { width: 55%; padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 8px; }
+    .form-row button { background: #ff6b00; color: white; border: none; cursor: pointer; }
+    .form-row button:hover { background: #e65a00; }
+    table { width: 100%; margin-top: 12px; border-collapse: collapse; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: center; font-size: 14px; }
+    th { background: #007bff; color: white; }
+    .summary { display: none; margin-top: 15px; padding: 15px; background: #fff3cd; border: 1px solid #ffeeba; border-radius: 10px; }
+    .toggle-btn { width: 100%; background: #007bff; padding: 10px; color: white; font-size: 16px; border: none; border-radius: 8px; margin-top: 10px; }
+    .toggle-btn:hover { background: #0056b3; }
+    #loginBox, #adminPanel { display: none; }
+  </style>
+</head>
+<body>
+  <h1>Food Order System</h1>
 
+  <div class="container" id="orderPanel">
+    <h2>Place Your Order</h2>
+
+    <div class="form-row">
+      <label>Name</label>
+      <input type="text" id="name" />
+    </div>
+
+    <div class="form-row">
+      <label>Contact</label>
+      <input type="text" id="contact" />
+    </div>
+
+    <div class="form-row">
+      <label>Food Item</label>
+      <select id="item">
+        <option value="Fish Butter Fry" data-price="120">Fish Butter Fry - ₹120</option>
+        <option value="Fish Fry" data-price="100">Fish Fry - ₹100</option>
+        <option value="Fish Finger" data-price="130">Fish Finger - ₹130</option>
+        <option value="Golden Prawns" data-price="150">Golden Prawns - ₹150</option>
+        <option value="Fish Kabiraji" data-price="140">Fish Kabiraji - ₹140</option>
+        <option value="Chicken Keema Cutlet" data-price="90">Chicken Keema Cutlet - ₹90</option>
+        <option value="Chicken Drumsticks" data-price="110">Chicken Drumsticks - ₹110</option>
+        <option value="Tea" data-price="20">Tea - ₹20</option>
+        <option value="Sandwich Chicken" data-price="80">Sandwich Chicken - ₹80</option>
+        <option value="Sandwich Paneer" data-price="75">Sandwich Paneer - ₹75</option>
+        <option value="Sandwich Cheese Corn" data-price="85">Sandwich Cheese Corn - ₹85</option>
+        <option value="Pan Fried Momo" data-price="70">Pan Fried Momo - ₹70</option>
+        <option value="Kabiraji Momo" data-price="90">Kabiraji Momo - ₹90</option>
+        <option value="Afghani Momo" data-price="95">Afghani Momo - ₹95</option>
+        <option value="Fried Momo" data-price="65">Fried Momo - ₹65</option>
+        <option value="Steam Momo" data-price="60">Steam Momo - ₹60</option>
+      </select>
+    </div>
+
+    <div class="form-row">
+      <label>Quantity</label>
+      <input type="number" id="quantity" value="1" min="1" />
+    </div>
+
+    <div class="form-row">
+      <label></label>
+      <button onclick="addToCart()">Add to Cart</button>
+    </div>
+
+    <table id="cartTable">
+      <thead>
+        <tr><th>Item</th><th>Qty</th><th>Price ₹</th><th>Remove</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <div class="form-row">
+      <label></label>
+      <button onclick="placeOrder()">Place Order</button>
+    </div>
+
+    <div class="summary" id="summaryBox">
+      <h3>Order Summary</h3>
+      <p id="summaryText"></p>
+      <div class="form-row">
+        <label></label>
+        <button id="downloadBtn">Download PDF</button>
+      </div>
+    </div>
+
+    <button class="toggle-btn" onclick="showLogin()">Admin Panel</button>
+  </div>
+
+  <div class="container" id="loginBox">
+    <h2>Admin Login</h2>
+    <input type="password" id="adminPass" placeholder="Enter Password" />
+    <button onclick="checkLogin()">Login</button>
+    <button class="toggle-btn" onclick="hideLogin()">Back</button>
+  </div>
+
+  <div class="container" id="adminPanel">
+    <h2>Admin Panel</h2>
+    <input type="text" id="searchBox" placeholder="Search Orders" />
+    <button onclick="exportCSV()">Export CSV</button>
+    <button onclick="clearOrders()" style="background:#dc3545;">Clear All</button>
+    <button onclick="hideAdmin()" class="toggle-btn">Back</button>
+
+    <table id="adminTable">
+      <thead>
+        <tr><th>ID</th><th>Date</th><th>Name</th><th>Items</th><th>Total ₹</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <script>
+    const { jsPDF } = window.jspdf;
+    let cart = [];
+
+    function addToCart() {
+      const itemSelect = document.getElementById("item");
+      const item = itemSelect.value;
+      const price = parseInt(itemSelect.options[itemSelect.selectedIndex].dataset.price);
+      const qty = parseInt(document.getElementById("quantity").value);
+      if(qty<=0) return alert("Enter valid quantity");
+      cart.push({ item, qty, price });
+      updateCart();
+    }
+
+    function removeFromCart(i){ cart.splice(i,1); updateCart(); }
+
+    function updateCart(){
+      const tbody=document.querySelector("#cartTable tbody");
+      tbody.innerHTML="";
+      cart.forEach((c,i)=>{
+        tbody.innerHTML+=`<tr>
+          <td>${c.item}</td><td>${c.qty}</td><td>${c.price*c.qty}</td>
+          <td><button style="width:auto;padding:5px;" onclick="removeFromCart(${i})">X</button></td>
+        </tr>`;
+      });
+    }
+
+    function getOrderId(){ let id=localStorage.getItem("lastOrderId")||0; id=parseInt(id)+1; localStorage.setItem("lastOrderId",id); return id; }
+
+    function saveOrder(order){ let orders=JSON.parse(localStorage.getItem("orders")||"[]"); orders.push(order); localStorage.setItem("orders",JSON.stringify(orders)); }
+
+    function placeOrder(){
+      const name=document.getElementById("name").value.trim();
+      const contact=document.getElementById("contact").value.trim();
+      if(!/^[A-Za-z\s]+$/.test(name)) return alert("Enter valid name");
+      if(!/^[0-9]{10}$/.test(contact)) return alert("Enter valid 10-digit mobile");
+      if(cart.length===0) return alert("Add at least one item");
+
+      const orderId=getOrderId();
+      const date=new Date().toLocaleString();
+      const total=cart.reduce((s,c)=>s+c.price*c.qty,0);
+
+      const order={orderId,date,name,contact,items:cart,total};
+      saveOrder(order);
+
+      let summary=`Order ID: #${orderId}\nDate: ${date}\nName: ${name}\n\nItems:\n`;
+      cart.forEach(c=>summary+=`- ${c.item} x${c.qty} = ₹${c.price*c.qty}\n`);
+      summary+=`\nTotal: ₹${total}`;
+
+      document.getElementById("summaryText").innerText=summary;
+      document.getElementById("summaryBox").style.display="block";
+      document.getElementById("downloadBtn").onclick=()=>generatePDF(orderId,name,summary);
+
+      cart=[];
+      updateCart();
+    }
+
+    function generatePDF(orderId,name,summary){
+      const qrDiv=document.createElement("div");
+      new QRCode(qrDiv,{text:`Order #${orderId} - ${name}`,width:60,height:60});
+      const canvas=qrDiv.querySelector("canvas");
+      setTimeout(()=>{
+        const qrData=canvas.toDataURL("image/png");
+        const doc=new jsPDF({orientation:"p",unit:"mm",format:[80,200]});
+        doc.setFontSize(12); doc.text("Customer Copy",10,10);
+        doc.addImage(qrData,"PNG",55,5,20,20);
+        doc.setFontSize(10); doc.text(summary,10,30);
+        doc.line(5,90,75,90);
+        doc.setFontSize(12); doc.text("Vendor Copy",10,100);
+        doc.addImage(qrData,"PNG",55,95,20,20);
+        doc.setFontSize(10); doc.text(summary,10,120);
+        doc.save("order_summary.pdf");
+      },400);
+    }
+
+    function showLogin(){ orderPanel.style.display="none"; loginBox.style.display="block"; }
+    function hideLogin(){ orderPanel.style.display="block"; loginBox.style.display="none"; }
+    function checkLogin(){ if(document.getElementById("adminPass").value==="admin123"){ loginBox.style.display="none"; adminPanel.style.display="block"; loadOrders(); } else alert("Wrong password!"); }
+    function hideAdmin(){ adminPanel.style.display="none"; orderPanel.style.display="block"; }
+
+    function loadOrders(filter=""){
+      const tbody=document.querySelector("#adminTable tbody");
+      tbody.innerHTML="";
+      let orders=JSON.parse(localStorage.getItem("orders")||"[]");
+      if(filter) orders=orders.filter(o=>o.name.toLowerCase().includes(filter)||o.items.some(i=>i.item.toLowerCase().includes(filter)));
+      if(!orders.length) return tbody.innerHTML="<tr><td colspan='5'>No Orders</td></tr>";
+      orders.forEach(o=>{
+        const itemsList=o.items.map(i=>`${i.item} x${i.qty}`).join(", ");
+        tbody.innerHTML+=`<tr><td>${o.orderId}</td><td>${o.date}</td><td>${o.name}</td><td>${itemsList}</td><td>${o.total}</td></tr>`;
+      });
+    }
+
+    document.getElementById("searchBox")?.addEventListener("input",e=>loadOrders(e.target.value.toLowerCase()));
+
+    function clearOrders(){ if(confirm("Delete all orders?")){ localStorage.removeItem("orders"); localStorage.removeItem("lastOrderId"); loadOrders(); } }
+
+    function exportCSV(){
+      let orders=JSON.parse(localStorage.getItem("orders")||"[]");
+      if(!orders.length) return alert("No orders to export!");
+      let csv="Order ID,Date,Name,Contact,Items,Total\n";
+      orders.forEach(o=>{
+        const itemsList=o.items.map(i=>`${i.item} x${i.qty}`).join(" | ");
+        csv+=`${o.orderId},"${o.date}",${o.name},${o.contact},"${itemsList}",${o.total}\n`;
+      });
+      const blob=new Blob([csv],{type:"text/csv"});
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement("a"); a.href=url; a.download="orders.csv"; a.click(); URL.revokeObjectURL(url);
+    }
+  </script>
+</body>
+</html>
